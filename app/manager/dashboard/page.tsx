@@ -3,6 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { API_BASE_URL } from '@/config/api';
+HEAD
+
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+origin/G-frontend
 
 interface Student {
   id: number;
@@ -13,6 +18,10 @@ interface Student {
   address?: string;
   birthDate: string;
   age: number;
+HEAD
+
+  size?: string;
+>>>>>>> origin/G-frontend
   managerId: number;
   isSelected?: boolean;
   selectionId?: number;
@@ -348,6 +357,100 @@ export default function ManagerDashboard() {
     }
   };
 
+HEAD
+
+  const generateStudentsPdf = () => {
+    const selectedStudents = students.filter(s => s.isSelected);
+
+    if (!selectedStudents || selectedStudents.length === 0) {
+      alert('No selected students to export. Please select at least one student.');
+      return;
+    }
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 10;
+
+    // --- Outlined headline box with title only (no background fill) ---
+    const boxTop = 12;
+    const boxHeight = 22; // shortened headline box
+    doc.setDrawColor(0, 123, 180);
+    // make the heading border thinner
+    doc.setLineWidth(0.6);
+    doc.rect(margin, boxTop, pageWidth - margin * 2, boxHeight, 'S');
+
+    // Title (centered, outlined style)
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.setTextColor(0, 123, 180);
+    doc.text('Selected Students List', pageWidth / 2, boxTop + 14, { align: 'center' });
+
+    // --- Details block (left-aligned) placed below the outlined headline ---
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(30, 30, 30);
+
+    const currentDate = new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+
+    const infoStartY = boxTop + boxHeight + 14; // increased gap to avoid overlap
+
+    if (manager) {
+      doc.text(`Mentor: ${manager.name}`, margin, infoStartY);
+      doc.text(`Sport: ${manager.sport}`, margin, infoStartY + 6);
+      doc.text(`Date: ${currentDate}`, margin, infoStartY + 12);
+    } else {
+      doc.text(`Date: ${currentDate}`, margin, infoStartY);
+    }
+
+    // --- Table with improved styling (keeps same content) ---
+    const head = [['S.No', 'Name', 'Contact', 'Age', 'T-Shirt Size']];
+
+    
+    const body = selectedStudents.map((s, idx) => [
+      idx + 1,
+      s.name || '-',
+      s.contact || '-',
+      s.age ?? calculateAge(s.birthDate),
+      s.size || '-',
+    ]);
+
+    const tableStartY = (typeof infoStartY !== 'undefined' ? infoStartY + 16 : 48);
+
+    autoTable(doc, {
+      head,
+      body,
+      startY: tableStartY,
+      theme: 'grid',
+      styles: { fontSize: 10, cellPadding: 4, textColor: 40 },
+      headStyles: { fillColor: [0, 123, 180], textColor: 255, halign: 'center' },
+      alternateRowStyles: { fillColor: [245, 245, 245] },
+      columnStyles: {
+        0: { cellWidth: 18 },
+        1: { cellWidth: 70 },
+      },
+      didDrawPage: (data) => {
+        // Footer with page numbers
+        const pageCount = doc.getNumberOfPages();
+        const pageNumber = doc.internal.getCurrentPageInfo().pageNumber;
+        const footerText = `Page ${pageNumber} of ${pageCount}`;
+        doc.setFontSize(9);
+        doc.setTextColor(120);
+        doc.text(footerText, pageWidth / 2, pageHeight - 8, { align: 'center' });
+      },
+    });
+
+    // File name includes date for clarity
+    const safeDate = currentDate.replace(/\s+/g, '_');
+    doc.save(`students_${safeDate}.pdf`);
+  };
+
+
+origin/G-frontend
   const handleLogout = () => {
     localStorage.removeItem('isManager');
     localStorage.removeItem('managerId');
@@ -898,8 +1001,22 @@ export default function ManagerDashboard() {
 
           {activeTab === 'students' && (
             <div className="space-y-6">
+HEAD
               <h2 className="text-2xl font-bold text-black">Student Details</h2>
               
+=======
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-black">Student Details</h2>
+                <button
+                  onClick={generateStudentsPdf}
+                  disabled={students.length === 0}
+                  className="px-4 py-2 bg-[#00BFFF] hover:bg-[#0099CC] text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Generate PDF
+                </button>
+              </div>
+
+origin/G-frontend
               <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="text-xl font-bold text-black">
@@ -996,5 +1113,9 @@ export default function ManagerDashboard() {
       </div>
     </div>
   );
+HEAD
 }
 
+=======
+}
+origin/G-frontend

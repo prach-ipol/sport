@@ -1305,6 +1305,7 @@ export default function AdminDashboard() {
 
   const handleGeneratePDF = () => {
     const doc = new jsPDF();
+HEAD
     
     // Add title
     doc.setFontSize(18);
@@ -1313,6 +1314,26 @@ export default function AdminDashboard() {
     // Add date
     doc.setFontSize(10);
     doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 14;
+
+    // Add light background color
+    doc.setFillColor(245, 248, 250);
+    doc.rect(0, 0, pageWidth, pageHeight, 'F');
+
+    // Add title
+    doc.setFontSize(18);
+    doc.text('Teams Report', pageWidth / 2, 20, { align: 'center' });
+    
+    // Add date with red label
+    doc.setFontSize(10);
+    doc.setTextColor(255, 0, 0);
+    doc.text('Generated on: ', margin, 30);
+    doc.setTextColor(30, 30, 30);
+    doc.text(new Date().toLocaleDateString(), margin + 18, 30);
+origin/G-frontend
     
     // Prepare table data
     const tableData = teams.map(team => [

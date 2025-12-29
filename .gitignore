@@ -2,6 +2,10 @@
 
 # dependencies
 /node_modules
+<<<<<<< HEAD
+=======
+/public
+>>>>>>> origin/G-frontend
 /.pnp
 .pnp.*
 .yarn/*
@@ -39,5 +43,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+<<<<<<< HEAD
 # public files & videos
 /public/
+=======
+>>>>>>> origin/G-frontend
